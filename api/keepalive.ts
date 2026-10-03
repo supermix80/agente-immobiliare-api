@@ -1,8 +1,4 @@
-import postgres from "postgres";
-
-const sql = postgres(process.env.DATABASE_URL!, {
-  ssl: "require",
-});
+import { sql } from "../lib/db";
 
 // Richiamo giornaliero (vedi vercel.json): una lettura minima tiene attivo il
 // database, che sul piano gratuito viene messo in pausa dopo un periodo di inattività.
