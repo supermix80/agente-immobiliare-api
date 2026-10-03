@@ -14,7 +14,8 @@ test("richiesta valida", () => {
 test("richieste non valide", () => {
   for (const body of [null, {}, { request: "" }, { request: "x", messages: [{ from: "bot", text: "a" }] },
     { request: "x", messages: [{ from: "cliente", text: " " }] }, { request: "x".repeat(3001) },
-    { request: "x", messages: Array(41).fill({ from: "cliente", text: "a" }) }]) {
+    { request: "x", messages: Array(41).fill({ from: "cliente", text: "a" }) },
+    { request: "x", messages: null }, { request: "x", messages: "ciao" }, { request: "x", messages: {} }]) {
     assert.throws(() => parseDraftRequest(body), ValidationError);
   }
 });

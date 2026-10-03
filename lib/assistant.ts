@@ -37,7 +37,11 @@ export function parseDraftRequest(body: unknown): DraftRequest {
   const request = typeof b.request === "string" ? b.request.trim() : "";
   if (!request) throw new ValidationError("Manca la richiesta del lead.");
   if (request.length > MAX_REQUEST) throw new ValidationError("La richiesta è troppo lunga.");
-  const raw = Array.isArray(b.messages) ? b.messages : [];
+  // Campo assente: primo messaggio. Presente ma non elenco: errore del client, da non nascondere.
+  if (b.messages !== undefined && !Array.isArray(b.messages)) {
+    throw new ValidationError("La conversazione deve essere un elenco di messaggi.");
+  }
+  const raw = (b.messages ?? []) as unknown[];
   if (raw.length > MAX_MESSAGES) throw new ValidationError("La conversazione è troppo lunga.");
   const messages = raw.map((m) => {
     const from = (m as Record<string, unknown>)?.from;
