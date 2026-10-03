@@ -121,8 +121,11 @@ export async function changesSince(since: number) {
     seq: Number(r.seq),
   }));
   const cursor = records.length > 0 ? records[records.length - 1].seq : since;
+  // Numero progressivo più alto del server: se è più basso del punto ricordato dal dispositivo,
+  // il database è stato azzerato o è cambiato, e il dispositivo deve ripartire dall'inizio.
+  const [{ head }] = await sql`select coalesce(max(seq), 0) as head from crm_records`;
   // Se il limite è stato raggiunto ci sono altre schede: il dispositivo richiede ancora da cursor.
-  return { records, cursor, more: records.length === 2000 };
+  return { records, cursor, head: Number(head), more: records.length === 2000 };
 }
 
 /** Salva o elimina le schede: vince l'ultima arrivata. Restituisce il numero progressivo di ognuna. */
