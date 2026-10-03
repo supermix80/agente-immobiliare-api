@@ -44,6 +44,8 @@ export function ensureSchema(): Promise<void> {
       // Con la sicurezza a livello di riga attiva e nessuna regola, la tabella non è
       // leggibile dalle API pubbliche del database: ci arriva solo questo backend.
       await sql`alter table mandates enable row level security`;
+      // Valutazione dell'immobile (dati del sopralluogo, confronti, prezzi): un documento per incarico.
+      await sql`alter table mandates add column if not exists valuation jsonb`;
     })().catch((error) => {
       // Un errore non deve restare memorizzato: la prossima richiesta riprova.
       schemaReady = null;
@@ -90,6 +92,22 @@ function number(value: unknown, min: number, max: number, integer = false): numb
   return value;
 }
 
+// Dimensione massima della valutazione, in caratteri JSON.
+const VALUATION_MAX = 20_000;
+
+// Valutazione: un oggetto libero, di cui si controllano solo forma e dimensione.
+// Il contenuto lo gestiscono l'app e il documento che ne ricava.
+function valuation(value: unknown) {
+  if (value === null) return null;
+  if (typeof value !== "object" || Array.isArray(value)) {
+    throw new ValidationError("La valutazione non è valida.");
+  }
+  if (JSON.stringify(value).length > VALUATION_MAX) {
+    throw new ValidationError("La valutazione supera la dimensione consentita.");
+  }
+  return value as Record<string, unknown>;
+}
+
 /** Controlla e normalizza i dati ricevuti. Solleva ValidationError con un messaggio leggibile. */
 export function parseMandate(body: unknown) {
   if (!body || typeof body !== "object") {
@@ -133,7 +151,12 @@ export function parseMandate(body: unknown) {
     throw new ValidationError("La scadenza non può precedere l'inizio.");
   }
 
+  // La valutazione viene toccata solo se la richiesta la nomina: un client che non la
+  // conosce (il tool sul Mac, una versione vecchia dell'app) non la cancella modificando l'incarico.
+  const withValuation = "valuation" in b ? { valuation: sql.json(valuation(b.valuation) as never) } : {};
+
   return {
+    ...withValuation,
     owner_name: ownerName,
     phone,
     email,
@@ -179,6 +202,7 @@ export function toFlat(row) {
     notes: row.notes,
     latitude: row.latitude,
     longitude: row.longitude,
+    valuation: row.valuation ?? null,
     // Usato dai client come versione: cambia a ogni modifica.
     updatedAt: new Date(row.updated_at).toISOString(),
     deletedAt: row.deleted_at ? new Date(row.deleted_at).toISOString() : null,

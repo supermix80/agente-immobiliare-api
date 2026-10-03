@@ -25,6 +25,8 @@ La chiave va nell'header `X-API-Key` (o `Authorization: Bearer`).
 
 La tabella `mandates` viene creata al primo utilizzo, con la sicurezza a livello di riga attiva.
 
+Ogni incarico può avere una `valuation` (oggetto JSON, al massimo 20.000 caratteri): la valutazione dell'immobile preparata nell'app. `PUT` la modifica solo se il campo è presente nella richiesta; `"valuation": null` la cancella.
+
 ## Prova in locale
 
 ```bash
