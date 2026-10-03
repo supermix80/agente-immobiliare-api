@@ -2,6 +2,8 @@
   "name": "agente-api",
   "version": "1.0.0",
   "dependencies": {
-    "postgres": "^3.4.4"
+    "@anthropic-ai/sdk": "^0.131.0",
+    "postgres": "^3.4.4",
+    "zod": "^4.6.5"
   }
 }
