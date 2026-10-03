@@ -6,6 +6,7 @@ const routes: [RegExp, string][] = [
   [/^\/api\/health$/, "../api/health.ts"],
   [/^\/api\/keepalive$/, "../api/keepalive.ts"],
   [/^\/api\/leads$/, "../api/leads.ts"],
+  [/^\/api\/leads\/archive$/, "../api/leads/archive.ts"],
   [/^\/api\/mandates$/, "../api/mandates/index.ts"],
   [/^\/api\/mandates\/([^/]+)$/, "../api/mandates/[id].ts"],
   [/^\/api\/assistant\/draft$/, "../api/assistant/draft.ts"],
