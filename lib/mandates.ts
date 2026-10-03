@@ -66,8 +66,14 @@ function text(value: unknown, max: number): string | null {
 // Data senza orario, AAAA-MM-GG.
 function day(value: unknown): string | null {
   const cleaned = text(value, 10);
-  if (cleaned !== null && !/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
+  if (cleaned === null) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
     throw new ValidationError("Le date vanno indicate come AAAA-MM-GG.");
+  }
+  // Il formato non basta: 2026-02-31 va rifiutato. La data ricostruita deve coincidere.
+  const parsed = new Date(`${cleaned}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== cleaned) {
+    throw new ValidationError("La data indicata non esiste.");
   }
   return cleaned;
 }
@@ -187,7 +193,8 @@ export function isUuid(value: unknown): value is string {
 /** Tutti gli incarichi, compresi quelli cancellati (servono alla sincronizzazione). */
 export async function listMandates() {
   await ensureSchema();
-  const rows = await sql`select * from mandates order by updated_at desc limit 1000`;
+  // Nessun limite: un elenco troncato farebbe perdere incarichi e cancellazioni ai dispositivi.
+  const rows = await sql`select * from mandates order by updated_at desc`;
   return rows.map(toFlat);
 }
 
