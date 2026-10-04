@@ -6,9 +6,11 @@ const routes: [RegExp, string][] = [
   [/^\/api\/health$/, "../api/health.ts"],
   [/^\/api\/keepalive$/, "../api/keepalive.ts"],
   [/^\/api\/leads$/, "../api/leads.ts"],
+  [/^\/api\/leads\/archive$/, "../api/leads/archive.ts"],
   [/^\/api\/mandates$/, "../api/mandates/index.ts"],
   [/^\/api\/mandates\/([^/]+)$/, "../api/mandates/[id].ts"],
   [/^\/api\/assistant\/draft$/, "../api/assistant/draft.ts"],
+  [/^\/api\/records$/, "../api/records.ts"],
 ];
 
 const port = Number(process.argv[2] ?? 3055);
@@ -36,7 +38,7 @@ http
     }
 
     // Oggetti req/res con la stessa forma minima usata dalle funzioni.
-    const req = { method: request.method, headers: request.headers, body, query: match![1] ? { id: match![1] } : {} };
+    const req = { method: request.method, headers: request.headers, body, query: { ...Object.fromEntries(url.searchParams), ...(match![1] ? { id: match![1] } : {}) } };
     const res = {
       setHeader: (name: string, value: string) => response.setHeader(name, value),
       status(code: number) {

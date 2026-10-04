@@ -1,5 +1,6 @@
 import { requireApiKey } from "../lib/auth";
 import { sql } from "../lib/db";
+import { ensureArchiveColumn } from "../lib/leads-archive";
 
 // Testo facoltativo ripulito e limitato in lunghezza; vuoto diventa null.
 function text(value: unknown, max: number): string | null {
@@ -94,8 +95,11 @@ export default async function handler(req, res) {
       return;
     }
     try {
+      // I lead archiviati (prove, doppi) restano nel database ma non arrivano all'app
+      await ensureArchiveColumn();
       const rows = await sql`
         select * from leads
+        where archived_at is null
         order by created_at desc
       `;
       return res.status(200).json(rows);
