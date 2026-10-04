@@ -26,6 +26,7 @@ test("schede valide: contenuto e cancellazione", () => {
     { collection: "tasks", id: "t_1", payload: null, deleted: true },
   ]);
   assert.ok(COLLECTIONS.includes("externalListings"));
+  assert.ok(COLLECTIONS.includes("contactCare"));
 });
 
 test("schede non valide", () => {

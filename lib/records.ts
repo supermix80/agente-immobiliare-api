@@ -23,6 +23,8 @@ export const COLLECTIONS = [
   "assistantThreads",
   "agentProfile",
   "externalListings",
+  // Cura del contatto: "non ricontattare" e data dell'ultimo contatto
+  "contactCare",
 ];
 
 const MAX_RECORDS = 200;
@@ -125,7 +127,8 @@ export async function changesSince(since: number) {
   // il database è stato azzerato o è cambiato, e il dispositivo deve ripartire dall'inizio.
   const [{ head }] = await sql`select coalesce(max(seq), 0) as head from crm_records`;
   // Se il limite è stato raggiunto ci sono altre schede: il dispositivo richiede ancora da cursor.
-  return { records, cursor, head: Number(head), more: records.length === 2000 };
+  // `collections`: le raccolte che questo server accetta. Un'app più nuova non invia quelle che mancano qui.
+  return { records, cursor, head: Number(head), more: records.length === 2000, collections: COLLECTIONS };
 }
 
 /** Salva o elimina le schede: vince l'ultima arrivata. Restituisce il numero progressivo di ognuna. */
