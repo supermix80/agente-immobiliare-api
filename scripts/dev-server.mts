@@ -11,6 +11,7 @@ const routes: [RegExp, string][] = [
   [/^\/api\/mandates\/([^/]+)$/, "../api/mandates/[id].ts"],
   [/^\/api\/assistant\/draft$/, "../api/assistant/draft.ts"],
   [/^\/api\/records$/, "../api/records.ts"],
+  [/^\/api\/files\/([^/]+)$/, "../api/files/[id].ts"],
 ];
 
 const port = Number(process.argv[2] ?? 3055);
